@@ -1,26 +1,43 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class job extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
-      job.hasMany(models.employee)
+      job.hasMany(models.employee);
     }
-  };
-  job.init({
-    title: DataTypes.STRING,
-    min_salary: DataTypes.INTEGER,
-    max_salary: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'job',
-  });
+  }
+  job.init(
+    {
+      title: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: { notEmpty: { msg: 'title is required' } },
+      },
+      min_salary: {
+        type: DataTypes.INTEGER,
+        validate: { min: { args: [0], msg: 'min_salary cannot be negative' } },
+      },
+      max_salary: {
+        type: DataTypes.INTEGER,
+        validate: { min: { args: [0], msg: 'max_salary cannot be negative' } },
+      },
+    },
+    {
+      sequelize,
+      modelName: 'job',
+      validate: {
+        // Cross-field validation: keep the salary range sane.
+        maxNotLessThanMin() {
+          if (
+            this.min_salary != null &&
+            this.max_salary != null &&
+            this.max_salary < this.min_salary
+          ) {
+            throw new Error('max_salary must be greater than or equal to min_salary');
+          }
+        },
+      },
+    }
+  );
   return job;
 };

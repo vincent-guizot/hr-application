@@ -1,9 +1,11 @@
-const regionRoute = require('express').Router()
-const RegionController = require('../controllers/RegionController')
+const router = require('express').Router();
+const RegionController = require('../controllers/RegionController');
+const { verifyToken, authorizeRoles } = require('../middlewares/auth');
 
-regionRoute.get('/', RegionController.getRegions)
-regionRoute.post('/', RegionController.add)
-regionRoute.put('/:id', RegionController.update)
-regionRoute.delete('/:id', RegionController.delete)
+router.get('/', RegionController.getAll);
+router.get('/:id', RegionController.getOne);
+router.post('/', verifyToken, authorizeRoles('admin'), RegionController.create);
+router.put('/:id', verifyToken, authorizeRoles('admin'), RegionController.update);
+router.delete('/:id', verifyToken, authorizeRoles('admin'), RegionController.remove);
 
-module.exports = regionRoute
+module.exports = router;

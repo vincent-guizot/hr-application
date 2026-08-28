@@ -1,27 +1,34 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class dependent extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
-      // define association here
-      dependent.belongsTo(models.employee)
+      dependent.belongsTo(models.employee);
     }
-  };
-  dependent.init({
-    first_name: DataTypes.STRING,
-    last_name: DataTypes.STRING,
-    relationship: DataTypes.STRING,
-    employeeId: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'dependent',
-  });
+  }
+  dependent.init(
+    {
+      first_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: { notEmpty: { msg: 'first_name is required' } },
+      },
+      last_name: {
+        type: DataTypes.STRING,
+        allowNull: false,
+        validate: { notEmpty: { msg: 'last_name is required' } },
+      },
+      relationship: DataTypes.STRING,
+      employeeId: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        validate: { notNull: { msg: 'employeeId is required' } },
+      },
+    },
+    {
+      sequelize,
+      modelName: 'dependent',
+    }
+  );
   return dependent;
 };
